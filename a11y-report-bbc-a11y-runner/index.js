@@ -8,14 +8,16 @@ module.exports = async function(context, url) {
   const bbcA11yProcess = childProcess.spawn(bbcA11yPath, bbcA11yArgs)
 
   bbcA11yProcess.stderr.on("data", data => {
-    context.error("[bbc-a11y error]", data.toString("utf8"))
+    context.log.error("bbc-a11y failed", data.toString("utf8"))
     context.done()
   })
 
   bbcA11yProcess.stdout.on("data", data => {
     try {
+      context.log("bbc-a11y returned valid JSON")
       context.binding.results = JSON.parse(data)
     } catch (e) {
+      context.log.error("bbc-a11y returned invalid JSON", data.toString("utf8"))
       // Ignore non-JSON output
     }
 
