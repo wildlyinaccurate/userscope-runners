@@ -5,14 +5,14 @@
       "type": "queueTrigger",
       "direction": "in",
       "queueName": "a11y-report-jobs",
-      "connection": "a11yreport_STORAGE"
+      "connection": "AzureWebJobsStorage"
     },
     {
       "type": "queue",
       "direction": "out",
       "name": "bbcA11yJob",
       "queueName": "a11y-report-bbc-a11y-jobs",
-      "connection": "a11yreport_STORAGE"
+      "connection": "AzureWebJobsStorage"
     }
   ]
 }

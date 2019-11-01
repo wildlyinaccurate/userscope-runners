@@ -5,7 +5,7 @@
       "type": "queueTrigger",
       "direction": "in",
       "queueName": "a11y-report-bbc-a11y-jobs",
-      "connection": "a11yreport_STORAGE"
+      "connection": "AzureWebJobsStorage"
     },
     {
       "name": "results",
