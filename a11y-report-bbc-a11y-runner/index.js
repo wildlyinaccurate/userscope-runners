@@ -9,6 +9,7 @@ module.exports = async function(context, url) {
 
   bbcA11yProcess.stderr.on("data", data => {
     context.error("[bbc-a11y error]", data.toString("utf8"))
+    context.done()
   })
 
   bbcA11yProcess.stdout.on("data", data => {
