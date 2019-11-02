@@ -1,35 +1,26 @@
-const childProcess = require("child_process")
+const util = require("util")
+const execFile = util.promisify(require("child_process").execFile)
 
 module.exports = async function(context, url) {
   context.log("bbc-a11y runner processing URL from queue", url)
 
   const bbcA11yPath = require.resolve("bbc-a11y")
-  context.log("bbcA11yPath", bbcA11yPath)
   const bbcA11yArgs = ["--reporter", "json", url]
-  context.log("bbcA11yArgs", bbcA11yArgs)
-  const bbcA11yProcess = childProcess.spawn(bbcA11yPath, bbcA11yArgs)
-  context.log("bbcA11yProcess", bbcA11yProcess)
 
-  bbcA11yProcess.stderr.on("data", data => {
-    context.log("(log) bbc-a11y failed)", data)
-    context.log("(log toString) bbc-a11y failed)", data.toString("utf8"))
-    context.log.error("bbc-a11y failed", data.toString("utf8"))
-    context.log("Done after error")
-    context.done()
-  })
+  const { stdout, stderr } = await execFile(bbcA11yPath, bbcA11yArgs)
 
-  bbcA11yProcess.stdout.on("data", data => {
+  if (stdout) {
     try {
-      context.log("bbc-a11y returned valid JSON")
-      context.binding.results = JSON.parse(data)
+      // eslint-disable-next-line require-atomic-updates
+      context.binding.results = JSON.parse(stdout)
     } catch (e) {
-      context.log("Ignoring non-JSON output", data)
-      context.log("Ignoring non-JSON output toString", data.toString("utf8"))
-      context.log.error("bbc-a11y returned invalid JSON", data.toString("utf8"))
-      // Ignore non-JSON output
+      context.log.error("bbc-a11y returned invalid JSON", stdout)
     }
+  } else {
+    context.log.error("bbc-a11y did not write to stdout")
+  }
 
-    context.log("Done after stdout")
-    context.done()
-  })
+  if (stderr) {
+    context.log.error("bbc-a11y wrote to stderr", stderr)
+  }
 }
