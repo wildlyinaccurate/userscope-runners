@@ -7,20 +7,26 @@ module.exports = async function(context, url) {
   const bbcA11yPath = require.resolve("bbc-a11y")
   const bbcA11yArgs = ["--reporter", "json", url]
 
-  const { stdout, stderr } = await execFile(bbcA11yPath, bbcA11yArgs)
+  const bbcA11yResult = await execFile(bbcA11yPath, bbcA11yArgs).catch(error => {
+    // bbc-a11y exits with a non-zero status when issues are reported. The "error"
+    // object we catch here contains stdout and stderr, so we can just return it
+    // and handle it as a successful test run.
+    return error
+  })
 
-  if (stdout) {
+  if (bbcA11yResult.stdout) {
     try {
       // eslint-disable-next-line require-atomic-updates
-      context.binding.results = JSON.parse(stdout)
+      context.bindings.results = JSON.parse(bbcA11yResult.stdout)
+      context.log("bbc-a11y returned valid results")
     } catch (e) {
-      context.log.error("bbc-a11y returned invalid JSON", stdout)
+      context.log.error("bbc-a11y returned invalid JSON", bbcA11yResult.stdout)
     }
   } else {
     context.log.error("bbc-a11y did not write to stdout")
   }
 
-  if (stderr) {
-    context.log.error("bbc-a11y wrote to stderr", stderr)
+  if (bbcA11yResult.stderr) {
+    context.log.error("bbc-a11y wrote to stderr", bbcA11yResult.stderr)
   }
 }
