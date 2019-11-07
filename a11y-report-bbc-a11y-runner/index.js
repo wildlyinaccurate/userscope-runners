@@ -31,6 +31,7 @@ module.exports = async function(context, url) {
       context.log("bbc-a11y returned valid results")
 
       const result = new Result({
+        url: url,
         data: JSON.parse(bbcA11yResult.stdout)
       })
 
