@@ -6,15 +6,6 @@
       "direction": "in",
       "queueName": "a11y-report-bbc-a11y-jobs",
       "connection": "AzureWebJobsStorage"
-    },
-    {
-      "name": "results",
-      "type": "cosmosDB",
-      "databaseName": "a11y-report",
-      "collectionName": "bbc-a11y-results",
-      "createIfNotExists": true,
-      "connectionStringSetting": "COSMOSDB_CONNECTION_STRING",
-      "direction": "out"
     }
   ]
 }

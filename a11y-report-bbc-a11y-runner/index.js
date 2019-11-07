@@ -1,8 +1,19 @@
 const util = require("util")
 const execFile = util.promisify(require("child_process").execFile)
+const mongoose = require("mongoose")
+const Result = require("./result")
 
 module.exports = async function(context, url) {
   context.log("bbc-a11y runner processing URL from queue", url)
+
+  const mongoUrl = process.env["COSMOSDB_CONNECTION_STRING"]
+
+  await mongoose
+    .connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
+    .catch(err => {
+      context.log.error("MongoDB connection error", err)
+      throw err
+    })
 
   const bbcA11yPath = require.resolve("bbc-a11y")
   const bbcA11yArgs = ["--reporter", "json", url]
@@ -17,10 +28,16 @@ module.exports = async function(context, url) {
   if (bbcA11yResult.stdout) {
     try {
       // eslint-disable-next-line require-atomic-updates
-      context.bindings.results = JSON.parse(bbcA11yResult.stdout)
       context.log("bbc-a11y returned valid results")
-    } catch (e) {
-      context.log.error("bbc-a11y returned invalid JSON", bbcA11yResult.stdout)
+
+      const result = new Result({
+        data: JSON.parse(bbcA11yResult.stdout)
+      })
+
+      await result.save()
+    } catch (err) {
+      context.log.error("Could not save bbc-a11y results. Error:", err, "stdout:", bbcA11yResult.stdout)
+      throw err
     }
   } else {
     context.log.error("bbc-a11y did not write to stdout")
@@ -28,5 +45,6 @@ module.exports = async function(context, url) {
 
   if (bbcA11yResult.stderr) {
     context.log.error("bbc-a11y wrote to stderr", bbcA11yResult.stderr)
+    throw new Error(bbcA11yResult.stderr)
   }
 }

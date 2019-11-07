@@ -12,7 +12,8 @@
     "semi": false
   },
   "dependencies": {
-    "bbc-a11y": "^2.3.2"
+    "bbc-a11y": "^2.3.2",
+    "mongoose": "^5.7.8"
   },
   "devDependencies": {
     "eslint": "^6.6.0",
