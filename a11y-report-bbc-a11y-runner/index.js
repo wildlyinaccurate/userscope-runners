@@ -3,17 +3,8 @@ const execFile = util.promisify(require("child_process").execFile)
 const mongoose = require("mongoose")
 const TestResult = require("./TestResult")
 
-module.exports = async function(context, messageJson) {
-  context.log("bbc-a11y received message", messageJson)
-
-  let message = {}
-
-  try {
-    message = JSON.parse(messageJson)
-  } catch (err) {
-    context.log.error("Invalid message JSON", err)
-    throw err
-  }
+module.exports = async function(context, message) {
+  context.log("bbc-a11y received message", message)
 
   if (!message.url) {
     context.log.error("Message does not include URL")
