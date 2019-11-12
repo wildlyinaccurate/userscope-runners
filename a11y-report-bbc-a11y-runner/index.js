@@ -1,10 +1,31 @@
 const util = require("util")
 const execFile = util.promisify(require("child_process").execFile)
 const mongoose = require("mongoose")
-const Result = require("./result")
+const TestResult = require("./TestResult")
 
-module.exports = async function(context, url) {
-  context.log("bbc-a11y runner processing URL from queue", url)
+module.exports = async function(context, messageJson) {
+  context.log("bbc-a11y received message", messageJson)
+
+  let message = {}
+
+  try {
+    message = JSON.parse(messageJson)
+  } catch (err) {
+    context.log.error("Invalid message JSON", err)
+    throw err
+  }
+
+  if (!message.url) {
+    context.log.error("Message does not include URL")
+    throw new Error("Message does not include URL")
+  }
+
+  if (!message.testResultId) {
+    context.log.error("Message does not include test result ID")
+    throw new Error("Message does not include test result ID")
+  }
+
+  const { url, testResultId } = message
 
   const mongoUrl = process.env["COSMOSDB_CONNECTION_STRING"]
 
@@ -14,6 +35,13 @@ module.exports = async function(context, url) {
       context.log.error("MongoDB connection error", err)
       throw err
     })
+
+  const testResult = await TestResult.findById(testResultId)
+
+  if (!testResult) {
+    context.log.error(`Cannot find test result with ID ${testResultId}`)
+    throw new Error(`Cannot find test result with ID ${testResultId}`)
+  }
 
   const bbcA11yPath = require.resolve("bbc-a11y")
   const bbcA11yArgs = ["--reporter", "json", url]
@@ -30,12 +58,9 @@ module.exports = async function(context, url) {
       // eslint-disable-next-line require-atomic-updates
       context.log("bbc-a11y returned valid results")
 
-      const result = new Result({
-        url: url,
-        data: JSON.parse(bbcA11yResult.stdout)
-      })
+      testResult.bbcA11yResult = JSON.parse(bbcA11yResult.stdout)
 
-      await result.save()
+      await testResult.save()
     } catch (err) {
       context.log.error("Could not save bbc-a11y results. Error:", err, "stdout:", bbcA11yResult.stdout)
       throw err
