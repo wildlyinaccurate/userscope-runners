@@ -1,9 +1,17 @@
-const util = require("util")
-const execFile = util.promisify(require("child_process").execFile)
-const mongoose = require("mongoose")
-const TestResult = require("./TestResult")
+import { Context } from "@azure/functions"
+import mongoose from "mongoose"
+import TestResult from "./TestResult"
+import util from "util"
+import childProcess from "child_process"
 
-module.exports = async function(context, message) {
+const execFile = util.promisify(childProcess.execFile)
+
+type BbcA11yJobQueueMessage = {
+  url: string
+  testResultId: string
+}
+
+export default async function(context: Context, message: BbcA11yJobQueueMessage) {
   context.log("bbc-a11y received message", message)
 
   if (!message.url) {
@@ -22,7 +30,7 @@ module.exports = async function(context, message) {
 
   await mongoose
     .connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
-    .catch(err => {
+    .catch((err: Error) => {
       context.log.error("MongoDB connection error", err)
       throw err
     })
@@ -37,7 +45,7 @@ module.exports = async function(context, message) {
   const bbcA11yPath = require.resolve("bbc-a11y")
   const bbcA11yArgs = ["--reporter", "json", url]
 
-  const bbcA11yResult = await execFile(bbcA11yPath, bbcA11yArgs).catch(error => {
+  const bbcA11yResult = await execFile(bbcA11yPath, bbcA11yArgs).catch((error: { stdout: string; stderr: string }) => {
     // bbc-a11y exits with a non-zero status when issues are reported. The "error"
     // object we catch here contains stdout and stderr, so we can just return it
     // and handle it as a successful test run.
@@ -50,7 +58,11 @@ module.exports = async function(context, message) {
 
       context.log("bbc-a11y returned valid results")
 
-      testResult.bbcA11yResult = results
+      testResult.bbcA11yResults = {
+        data: results
+      }
+
+      testResult.markModified("bbcA11yResults")
 
       await testResult.save()
 

@@ -14,4 +14,6 @@ WORKDIR /home/site/wwwroot
 
 RUN npm install
 
+RUN npm run build
+
 CMD [ "/home/site/wwwroot/start.sh" ]

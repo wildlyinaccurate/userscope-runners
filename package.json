@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
     "test": "npm run lint",
-    "lint": "eslint --fix \"**/*.js\""
+    "lint": "eslint --fix \"**/*.ts\""
   },
   "prettier": {
     "endOfLine": "lf",
@@ -14,16 +16,22 @@
   "dependencies": {
     "bbc-a11y": "^2.3.2",
     "mongoose": "^5.7.8",
-    "userscope-data-models": "^1.0.0"
+    "userscope-data-models": "^2.0.0"
   },
   "devDependencies": {
+    "@azure/functions": "^1.0.3",
+    "@types/mongoose": "^5.5.30",
+    "@types/node": "^12.12.7",
+    "@typescript-eslint/eslint-plugin": "^2.7.0",
+    "@typescript-eslint/parser": "^2.7.0",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.5.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-promise": "^4.2.1",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "typescript": "^3.7.2"
   },
   "author": "Joseph Wynn <joseph@wildlyinaccurate.com>",
   "license": "MIT"
