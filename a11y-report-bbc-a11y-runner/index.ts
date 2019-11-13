@@ -12,7 +12,7 @@ type BbcA11yJobQueueMessage = {
 }
 
 export default async function(context: Context, message: BbcA11yJobQueueMessage) {
-  context.log("bbc-a11y received message", message)
+  context.log("bbc-a11y-runner received message", message)
 
   if (!message.url) {
     context.log.error("Message does not include URL")
