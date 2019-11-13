@@ -1,5 +1,5 @@
 {
-  "name": "a11y-report-runners",
+  "name": "userscope-runners",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "bbc-a11y": "^2.3.2",
-    "mongoose": "^5.7.8"
+    "mongoose": "^5.7.8",
+    "userscope-data-models": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^6.6.0",
@@ -23,5 +24,7 @@
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-promise": "^4.2.1",
     "prettier": "^1.18.2"
-  }
+  },
+  "author": "Joseph Wynn <joseph@wildlyinaccurate.com>",
+  "license": "MIT"
 }
