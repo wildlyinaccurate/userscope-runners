@@ -46,12 +46,15 @@ module.exports = async function(context, message) {
 
   if (bbcA11yResult.stdout) {
     try {
-      // eslint-disable-next-line require-atomic-updates
+      const results = JSON.parse(bbcA11yResult.stdout)
+
       context.log("bbc-a11y returned valid results")
 
-      testResult.bbcA11yResult = JSON.parse(bbcA11yResult.stdout)
+      testResult.bbcA11yResult = results
 
       await testResult.save()
+
+      context.log("Successfully saved results to test result document")
     } catch (err) {
       context.log.error("Could not save bbc-a11y results. Error:", err, "stdout:", bbcA11yResult.stdout)
       throw err
