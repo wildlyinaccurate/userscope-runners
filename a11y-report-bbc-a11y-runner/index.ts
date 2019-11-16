@@ -1,17 +1,13 @@
-import { Context } from "@azure/functions"
 import mongoose from "mongoose"
+import { Context } from "@azure/functions"
 import TestResult from "./TestResult"
 import util from "util"
 import childProcess from "child_process"
+import { JobQueueMessage } from "userscope-data-models"
 
 const execFile = util.promisify(childProcess.execFile)
 
-type BbcA11yJobQueueMessage = {
-  url: string
-  testResultId: string
-}
-
-export default async function(context: Context, message: BbcA11yJobQueueMessage) {
+export default async function(context: Context, message: JobQueueMessage) {
   context.log("bbc-a11y-runner received message", message)
 
   if (!message.url) {
