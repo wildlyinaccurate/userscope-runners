@@ -13,6 +13,13 @@
       "name": "bbcA11yJob",
       "queueName": "a11y-report-bbc-a11y-jobs",
       "connection": "AzureWebJobsStorage"
+    },
+    {
+      "type": "queue",
+      "direction": "out",
+      "name": "lighthouseJob",
+      "queueName": "a11y-report-lighthouse-jobs",
+      "connection": "AzureWebJobsStorage"
     }
   ]
 }
