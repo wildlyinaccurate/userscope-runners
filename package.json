@@ -16,12 +16,14 @@
   "dependencies": {
     "bbc-a11y": "^2.3.3",
     "mongoose": "^5.7.11",
+    "node-fetch": "^2.6.0",
     "userscope-data-models": "^2.0.2"
   },
   "devDependencies": {
     "@azure/functions": "^1.0.3",
     "@types/mongoose": "^5.5.32",
     "@types/node": "^12.12.8",
+    "@types/node-fetch": "^2.5.3",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
     "eslint": "^6.6.0",

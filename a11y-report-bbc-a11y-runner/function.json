@@ -1,4 +1,5 @@
 {
+  "scriptFile": "../dist/a11y-report-bbc-a11y-runner/index.js",
   "bindings": [
     {
       "name": "url",
@@ -7,6 +8,5 @@
       "queueName": "a11y-report-bbc-a11y-jobs",
       "connection": "AzureWebJobsStorage"
     }
-  ],
-  "scriptFile": "../dist/a11y-report-bbc-a11y-runner/index.js"
+  ]
 }

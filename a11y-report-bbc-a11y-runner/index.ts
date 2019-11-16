@@ -1,36 +1,15 @@
-import mongoose from "mongoose"
 import { Context } from "@azure/functions"
-import TestResult from "./TestResult"
 import util from "util"
 import childProcess from "child_process"
 import { JobQueueMessage } from "userscope-data-models"
+import TestResult from "../shared/TestResult"
 
 const execFile = util.promisify(childProcess.execFile)
 
 export default async function(context: Context, message: JobQueueMessage) {
   context.log("bbc-a11y-runner received message", message)
 
-  if (!message.url) {
-    context.log.error("Message does not include URL")
-    throw new Error("Message does not include URL")
-  }
-
-  if (!message.testResultId) {
-    context.log.error("Message does not include test result ID")
-    throw new Error("Message does not include test result ID")
-  }
-
   const { url, testResultId } = message
-
-  const mongoUrl = process.env["COSMOSDB_CONNECTION_STRING"]
-
-  await mongoose
-    .connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true })
-    .catch((err: Error) => {
-      context.log.error("MongoDB connection error", err)
-      throw err
-    })
-
   const testResult = await TestResult.findById(testResultId)
 
   if (!testResult) {
