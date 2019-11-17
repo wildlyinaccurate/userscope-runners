@@ -1,28 +1,43 @@
 import fetch from "node-fetch"
 import { URL } from "url"
 import { Context } from "@azure/functions"
-import { JobQueueMessage } from "userscope-data-models"
+import { JobQueueMessage, TestResultDocument } from "userscope-data-models"
 import TestResult from "../shared/TestResult"
 
 export default async function(context: Context, message: JobQueueMessage) {
   context.log("Task master processing message from queue", message)
 
+  const handleError = async (message: string, errorObj?: Error, testResult?: TestResultDocument) => {
+    context.log.error(message)
+
+    const error: Error = errorObj || new Error(message)
+
+    if (testResult) {
+      const source = context.bindingData.id
+      const errorAlreadyLogged = testResult.testingErrors.some(e => e.source === source)
+
+      if (!errorAlreadyLogged) {
+        testResult.testingErrors.push({ source, message, error })
+        await testResult.save()
+      }
+    }
+
+    context.done(error)
+  }
+
   if (!message.url) {
-    context.log.error("Message does not include URL")
-    throw new Error("Message does not include URL")
+    await handleError("Message does not include URL")
   }
 
   if (!message.testResultId) {
-    context.log.error("Message does not include test result ID")
-    throw new Error("Message does not include test result ID")
+    await handleError("Message does not include test result ID")
   }
 
   const { url, testResultId } = message
   const testResult = await TestResult.findById(testResultId)
 
   if (!testResult) {
-    context.log.error(`Cannot find test result with ID ${testResultId}`)
-    throw new Error(`Cannot find test result with ID ${testResultId}`)
+    await handleError(`Cannot find test result with ID ${testResultId}`)
   }
 
   let parsedUrl
@@ -30,8 +45,7 @@ export default async function(context: Context, message: JobQueueMessage) {
   try {
     parsedUrl = new URL(url)
   } catch (err) {
-    context.log.error("Unable to parse URL")
-    throw err
+    await handleError("Unable to parse URL", err, testResult)
   }
 
   try {
@@ -40,12 +54,10 @@ export default async function(context: Context, message: JobQueueMessage) {
     })
 
     if (res.status !== 200) {
-      context.log.error(`URL returned status code ${res.status}`)
-      throw new Error(`URL returned status code ${res.status}`)
+      await handleError(`URL returned status code ${res.status}`, undefined, testResult)
     }
   } catch (err) {
-    context.log.error("Could not fetch URL", err)
-    throw err
+    await handleError(`Could not get response from ${url}`, err, testResult)
   }
 
   context.log("Passing message to runners")
