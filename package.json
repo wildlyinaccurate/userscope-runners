@@ -16,7 +16,7 @@
   "dependencies": {
     "bbc-a11y": "https://github.com/wildlyinaccurate/bbc-a11y/tarball/invalid-selector-easy-fix",
     "mongoose": "^5.8.11",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "userscope-data-models": "^2.1.3"
   },
   "devDependencies": {
